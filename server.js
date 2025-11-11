@@ -1,5 +1,5 @@
 import express from 'express';
-import { leerArchivo, escribirArchivo } from './modulos/fileSystem';
+import { leerArchivo, escribirArchivo } from './modulos/fileSystem.js';
 
 
 const app = express();
@@ -13,12 +13,11 @@ app.get('/', (req, res) => {
 });
 
 
-//? METODOS
-
+//? METODOS para productos
 //! Todos los productos
 app.get('/api/products', (req, res) => {
     // Lógica para obtener productos
-    const productos = leerArchivo('productos.json');
+    const productos = leerArchivo('./api/products.json');
     res.json(productos);
 });
 
@@ -27,7 +26,7 @@ app.get("/api/products/:pid", async (req, res) => {
     const { pid } = req.params;
 
     // Se lee el archivo JSON que contiene los productos
-    const productos = await leerArchivo("products.json");
+    const productos = await leerArchivo("./api/products.json");
 
     // Comprobar si existe (stringifear por las dudas)
     const producto = productos.find(p => String(p.id) === String(pid));
@@ -44,8 +43,8 @@ app.get("/api/products/:pid", async (req, res) => {
 
 //! Nuevo producto
 app.post('/api/products', async (req, res) => {
-    const productos = await leerArchivo('productos.json');
-    const { body } = req.body;
+    const productos = await leerArchivo('./api/products.json');
+    const body = req.body;
 
     if (!body || Object.keys(body).length === 0) {
         return res.status(400).json({ error: 'Mal cargado el nuevo producto' });
@@ -57,7 +56,7 @@ app.post('/api/products', async (req, res) => {
     };
 
     productos.push(nuevoProducto);
-    await escribirArchivo('productos.json', productos);
+    await escribirArchivo('./api/products.json', productos);
     res.status(201).json(nuevoProducto);
 });
 
@@ -65,8 +64,8 @@ app.post('/api/products', async (req, res) => {
 app.put('/api/products/:pid', async (req, res) => {
     // obtener parametro de la url y el body
     const { pid } = req.params;
-    const { body } = req.body;
-    const productos = await leerArchivo('productos.json');
+    const body = req.body;
+    const productos = await leerArchivo('./api/products.json');
 
     // Comprobar si el producto existe siempre stringifeando
     const index = productos.findIndex(p => String(p.id) === String(pid));
@@ -79,7 +78,7 @@ app.put('/api/products/:pid', async (req, res) => {
     // Si existe, actualizarlo
     const id = productos[index].id;
     productos[index] = { id, ...body };
-    await escribirArchivo('productos.json', productos);
+    await escribirArchivo('./api/products.json', productos);
     res.status(202).json(productos[index]);
 });
 
@@ -87,7 +86,7 @@ app.put('/api/products/:pid', async (req, res) => {
 app.delete('/api/products/:pid', async (req, res) => {
     // obtener parametro de la url
     const { pid } = req.params;
-    const productos = await leerArchivo('productos.json');
+    const productos = await leerArchivo('./api/products.json');
     const index = productos.findIndex(p => String(p.id) === String(pid));
 
     // Si no existe, devolver error
@@ -96,15 +95,15 @@ app.delete('/api/products/:pid', async (req, res) => {
     }
     // Si existe, eliminarlo. No sabia q existia splice y hardcodee al principio :(
     productos.splice(index, 1);
-    await escribirArchivo('productos.json', productos);
+    await escribirArchivo('./api/products.json', productos);
     res.status(200).json({ message: 'Producto eliminado' });
 });
 
-//? Metodos para api/carts
 
+//? Metodos para api/carts
 //! Crear carrito
 app.post('/api/carts', async (req, res) => {
-    const carts = await leerArchivo('carts.json');
+    const carts = await leerArchivo('./api/carts.json');
 
     // Products vacio (asumo que asi era) id unico = fecha
     const nuevoCarrito = {
@@ -114,14 +113,14 @@ app.post('/api/carts', async (req, res) => {
 
     // Empujar el carrito :P (push)
     carts.push(nuevoCarrito);
-    await escribirArchivo('carts.json', carts);
+    await escribirArchivo('./api/carts.json', carts);
     res.status(201).json(nuevoCarrito);
 });
 
 //! Obtener carrito por ID
 app.get('/api/carts/:cid', async (req, res) => {
     const { cid } = req.params;
-    const carts = await leerArchivo('carts.json');
+    const carts = await leerArchivo('./api/carts.json');
     const carrito = carts.find(c => String(c.id) === String(cid));
 
     // Si no existe, devolver error
@@ -134,30 +133,38 @@ app.get('/api/carts/:cid', async (req, res) => {
 });
 
 //! Agregar producto al carrito
-app.post('/api/carts/:cid/products/:pid', async (req, res) => {
+app.post('/api/carts/:cid/product/:pid', async (req, res) => {
     const { cid, pid } = req.params;
-    const carts = await leerArchivo('carts.json');
-    const products = await leerArchivo('productos.json');
+    const carts = await leerArchivo('./api/carts.json');
+    const products = await leerArchivo('./api/products.json');
     const carritoIndex = carts.findIndex(c => String(c.id) === String(cid));
 
     // Si no existe el carrito, devolver error
     if (carritoIndex === -1) {
         return res.status(404).json({ error: 'Carrito no encontrado' });
     }
-    const producto = products.find(p => String(p.id) === String(pid));
-    if (!producto) {
-        const nuevoProducto = {
-            product : pid,
-            quantity: 1
-        };
-        carts[carritoIndex].products.push(nuevoProducto);
+    // Si no existe el producto, devolver error
+    const productoExiste = products.find(p => String(p.id) === String(pid));
+    if (!productoExiste) {
+        return res.status(404).json({ error: 'Producto no encontrado' });
     }
-    else {
-        //Si existe, aumentar cantidad
-        const productoIndex = carts[carritoIndex].products.findIndex(p => String(p.product) === String(pid));
+
+
+    // Buscar producto dentro del carrito
+    const productoIndex = carts[carritoIndex].products.findIndex(p => String(p.product) === String(pid));
+
+    if (productoIndex === -1) {
+        // Se agrega si no existe
+        carts[carritoIndex].products.push({
+            product: pid,
+            quantity: 1
+        });
+    } else {
+        // Se suma si ya existe
         carts[carritoIndex].products[productoIndex].quantity += 1;
     }
-    await escribirArchivo('carts.json', carts);
+
+    await escribirArchivo('./api/carts.json', carts);
     res.status(200).json(carts[carritoIndex]);
 });
 
