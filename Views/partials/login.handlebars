@@ -1,12 +1,12 @@
-<div style="max-width:300px; margin:auto;">
+<div style="max-width:300px; margin:auto; display:flex; flex-direction:column; gap:10px; justify-content:center; align-items:center; padding:20px; border:1px solid #030303; border-radius:5px;">
     <h2>Iniciar sesión</h2>
 
     <form action="/login" method="POST">
-        <label>Email:</label>
-        <input type="email" name="email" required>
+        <label>Nombre:</label>
+        <input type="username" name="username" required placeholder="ingrese admin o usuario">
 
         <label>Contraseña:</label>
-        <input type="password" name="password" required>
+        <input type="password" name="password" required placeholder="1234 o abcd respectivamente">
 
         <button type="submit">Entrar</button>
     </form>

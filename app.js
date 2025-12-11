@@ -2,9 +2,12 @@ import express from 'express';
 import handlebars from 'express-handlebars';
 import viewsRouter from './routes/views.router.js';
 import apiRouter from './routes/api.router.js';
+// para manejo de sesiones
+import session from 'express-session';
 
 const app = express();
-const PORT = 8080;
+// al subir a producción, usar el puerto definido en las variables de entorno
+const PORT = process.env.PORT || 3000;
 
 // Configuración de Handlebars
 app.engine('handlebars', handlebars.engine());
@@ -15,11 +18,19 @@ app.set('views', './views');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Configuración de sesiones
+app.use(session({
+    secret: 'mi_secreto_de_sesion',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 180000 } // sesión válida por 3 minutos
+}));
+
 // Rutas
 app.use('/api', apiRouter);
 app.use('/', viewsRouter);
 
 // inicia el servidor
 app.listen(PORT, () => {
-    console.log(`Servidor escuchando en el puerto ${PORT}`);
+    console.log(`Servidor escuchando en el puerto http://localhost:${PORT}`);
 });
