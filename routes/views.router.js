@@ -5,67 +5,85 @@ const router = Router();
 
 //? RUTAS
 router.get('/', (req, res) => {
+    console.log("Entrando a home");
+
     if (!req.session.logueado) {
+        console.log("No logueado, redirigiendo a login desede home");
         return res.redirect('/login');
     }
+    console.log("Logueado, mostrando home desde get home");
     res.render('home', {
         layout: 'main',
-        title: 'Bienvenido a la página principal'
+        title: 'Bienvenido a la página principal',
+        logueado: req.session.logueado,
+        nombre: req.session.nombre
     });
 });
 
 // PRODUCTOS 
 router.get("/productos", async (req, res) => {
+    console.log("Entrando a productos");
     const productos = await getAllProducts();
     res.render("productos", {
         layout: "main",
         title: "Productos",
-        productos
+        productos,
+        logueado: req.session.logueado,
+        nombre: req.session.nombre
     });
 });
 
 // PANEL ADMIN 
 router.get("/admin", (req, res) => {
-    if (!req.session.logueado) {
-        return res.redirect('/login');
+    console.log("Entrando a admin panel");
+    if (!req.session.logueado || !req.session.admin) {
+        console.log("No autorizado, redirigiendo a home desde admin panel");
+        return res.redirect('/');
     }
+    console.log("Autorizado, mostrando admin panel");
     res.render("adminPanel", {
         layout: "admin",
         title: "Panel de Administración"
     });
 });
 
-// USUARIOS 
-router.get("/usuarios", (req, res) => {
-    res.render("usuarios", {
-        layout: "usuarios",
-        title: "Gestión de Usuarios"
-    });
-});
 
 // LOGIN 
 router.get("/login", (req, res) => {
+    console.log("Entrando a login");
+    if (req.session.logueado) {
+        console.log("Ya logueado, redirigiendo a home desde login");
+        return res.redirect('/');
+    }
     res.render("login", {
         layout: "main",
         title: "Login"
     });
 });
 router.post('/login', (req, res) => {
+    console.log("Procesando login");
+    
     const { username, password } = req.body;
 
     if (username === "admin" && password === "1234") {
         req.session.nombre = username;
+        req.session.admin = true;
         req.session.logueado = true;
+        console.log("Login exitoso como admin");
         return res.redirect('/admin');
     }
 
-    else if (username === "user" && password === "abcd") {
+    if (username.length > 0 && password.length > 0) {
         req.session.nombre = username;
+        req.session.admin = false;
         req.session.logueado = true;
+        console.log("Login exitoso como usuario regular");
         return res.redirect('/');
     }
+
     // Credenciales inválidas
     console.log("Credenciales inválidas");
-    res.render('login', { error: "Usuario o contraseña inválidos" });
+    res.render('login', {layout: "main", error: "Usuario o contraseña inválidos" });
 });
+
 export default router;

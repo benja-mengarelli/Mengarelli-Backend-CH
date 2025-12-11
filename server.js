@@ -7,6 +7,7 @@ const CART_PATH = './api/carts.json';
 
 // Leer y obtener todos los productos
 export async function getAllProducts() {
+    console.log("Obteniendo todos los productos desde server.js");
     return await ReadData(PRODUCT_PATH);
 }
 

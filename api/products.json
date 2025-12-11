@@ -1,0 +1,27 @@
+[
+    {
+        "id": 1,
+        "title": "Laptop Lenovo IdeaPad 15",
+        "price": 450000
+    },
+    {
+        "id": 2,
+        "title": "Mouse Inalámbrico Logitech M170",
+        "price": 8500
+    },
+    {
+        "id": 3,
+        "title": "Teclado Mecánico Redragon Kumara",
+        "price": 38000
+    },
+    {
+        "id": 4,
+        "title": "Monitor Samsung 24 pulgadas",
+        "price": 120000
+    },
+    {
+        "id": 5,
+        "title": "Auriculares Sony WH-CH510",
+        "price": 32000
+    }
+]
