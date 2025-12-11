@@ -1,173 +1,112 @@
-import express from 'express';
-import { leerArchivo, escribirArchivo } from './modulos/fileSystem.js';
+import { ReadData, WriteData } from './modulos/fileSystem.js';
 
+const PRODUCT_PATH = './api/products.json';
+const CART_PATH = './api/carts.json';
 
-const app = express();
-const PORT = 8080;
+//! PRODUCTS
 
-app.use(express.json());
+// Leer y obtener todos los productos
+export async function getAllProducts() {
+    return await ReadData(PRODUCT_PATH);
+}
 
-//? RUTAS
-app.get('/', (req, res) => {
-    res.send('Servidor Express ATR funcionando');
-});
+// Obtener un producto por ID
+export async function getProductById(id) {
+    const productos = await ReadData(PRODUCT_PATH);
+    // si coincide el id (convertido a string para evitar problemas de tipo)
+    return productos.find(p => String(p.id) === String(id));
+}
 
+// Crear un nuevo producto
+export async function createProduct(data) {
+    const productos = await ReadData(PRODUCT_PATH);
 
-//? METODOS para productos
-//! Todos los productos
-app.get('/api/products', (req, res) => {
-    // Lógica para obtener productos
-    const productos = leerArchivo('./api/products.json');
-    res.json(productos);
-});
-
-//! Producto por ID
-app.get("/api/products/:pid", async (req, res) => {
-    const { pid } = req.params;
-
-    // Se lee el archivo JSON que contiene los productos
-    const productos = await leerArchivo("./api/products.json");
-
-    // Comprobar si existe (stringifear por las dudas)
-    const producto = productos.find(p => String(p.id) === String(pid));
-
-    //Si no existe, devolver error
-    if (!producto) {
-        return res.status(404).json({ error: "Producto no encontrado" });
-    }
-
-    //Si existe, devolver el producto
-    res.json(producto);
-});
-
-
-//! Nuevo producto
-app.post('/api/products', async (req, res) => {
-    const productos = await leerArchivo('./api/products.json');
-    const body = req.body;
-
-    if (!body || Object.keys(body).length === 0) {
-        return res.status(400).json({ error: 'Mal cargado el nuevo producto' });
-    }
-
-    const nuevoProducto = {
+    // almacenar nuevo producto
+    const nuevo = {
         id: productos.length + 1,
-        ...body
+        ...data
     };
 
-    productos.push(nuevoProducto);
-    await escribirArchivo('./api/products.json', productos);
-    res.status(201).json(nuevoProducto);
-});
+    // pushearlo al array y escribir archivo
+    productos.push(nuevo);
+    await WriteData(PRODUCT_PATH, productos);
+    return nuevo;
+}
 
-//! modificar producto
-app.put('/api/products/:pid', async (req, res) => {
-    // obtener parametro de la url y el body
-    const { pid } = req.params;
-    const body = req.body;
-    const productos = await leerArchivo('./api/products.json');
+// Actualizar un producto existente
+export async function updateProduct(id, data) {
+    const productos = await ReadData(PRODUCT_PATH);
+    // buscar índice del producto a actualizar
+    const index = productos.findIndex(p => String(p.id) === String(id));
 
-    // Comprobar si el producto existe siempre stringifeando
-    const index = productos.findIndex(p => String(p.id) === String(pid));
+    // si no se encuentra, retornar null
+    if (index === -1) return null;
 
-    // Si no existe, devolver error
-    if (index === -1) {
-        return res.status(404).json({ error: 'Producto no encontrado' });
-    }
+    // actualizar datos y escribir archivo
+    productos[index] = { id, ...data };
+    await WriteData(PRODUCT_PATH, productos);
+    return productos[index];
+}
 
-    // Si existe, actualizarlo
-    const id = productos[index].id;
-    productos[index] = { id, ...body };
-    await escribirArchivo('./api/products.json', productos);
-    res.status(202).json(productos[index]);
-});
+// Eliminar un producto
+export async function deleteProduct(id) {
+    const productos = await ReadData(PRODUCT_PATH);
+    // buscar índice del producto a eliminar
+    const index = productos.findIndex(p => String(p.id) === String(id));
 
-//! eliminar producto
-app.delete('/api/products/:pid', async (req, res) => {
-    // obtener parametro de la url
-    const { pid } = req.params;
-    const productos = await leerArchivo('./api/products.json');
-    const index = productos.findIndex(p => String(p.id) === String(pid));
+    // si no se encuentra, retornar null
+    if (index === -1) return null;
 
-    // Si no existe, devolver error
-    if (index === -1) {
-        return res.status(404).json({ error: 'Producto no encontrado' });
-    }
-    // Si existe, eliminarlo. No sabia q existia splice y hardcodee al principio :(
+    // eliminar producto y escribir archivo
     productos.splice(index, 1);
-    await escribirArchivo('./api/products.json', productos);
-    res.status(200).json({ message: 'Producto eliminado' });
-});
+    await WriteData(PRODUCT_PATH, productos);
+    return true;
+}
 
+//! CARTS
+// Crear un nuevo carrito
+export async function createCart() {
+    const carts = await ReadData(CART_PATH);
 
-//? Metodos para api/carts
-//! Crear carrito
-app.post('/api/carts', async (req, res) => {
-    const carts = await leerArchivo('./api/carts.json');
-
-    // Products vacio (asumo que asi era) id unico = fecha
+    // Ponerle fecha actual y un id único
     const nuevoCarrito = {
-        id: Date.now().toString(36), // autogenerado, único
+        id: Date.now().toString(36),
         products: []
     };
 
-    // Empujar el carrito :P (push)
+    // Agregar al array y escribir archivo
     carts.push(nuevoCarrito);
-    await escribirArchivo('./api/carts.json', carts);
-    res.status(201).json(nuevoCarrito);
-});
+    await WriteData(CART_PATH, carts);
+    return nuevoCarrito;
+}
 
-//! Obtener carrito por ID
-app.get('/api/carts/:cid', async (req, res) => {
-    const { cid } = req.params;
-    const carts = await leerArchivo('./api/carts.json');
-    const carrito = carts.find(c => String(c.id) === String(cid));
+// buscar un carrito
+export async function getCartById(cid) {
+    const carts = await ReadData(CART_PATH);
+    return carts.find(c => String(c.id) === String(cid));
+}
 
-    // Si no existe, devolver error
-    if (!carrito) {
-        return res.status(404).json({ error: 'Carrito no encontrado' });
-    }
+// agregar un producto al carrito
+export async function addProductToCart(cid, pid) {
+    const carts = await ReadData(CART_PATH);
+    const products = await ReadData(PRODUCT_PATH);
 
-    // mostrar carrito
-    res.json(carrito.products);
-});
+    const indexCarrito = carts.findIndex(c => String(c.id) === String(cid));
+    if (indexCarrito === -1) return null;
 
-//! Agregar producto al carrito
-app.post('/api/carts/:cid/product/:pid', async (req, res) => {
-    const { cid, pid } = req.params;
-    const carts = await leerArchivo('./api/carts.json');
-    const products = await leerArchivo('./api/products.json');
-    const carritoIndex = carts.findIndex(c => String(c.id) === String(cid));
+    const prodExiste = products.find(p => String(p.id) === String(pid));
+    if (!prodExiste) return false;
 
-    // Si no existe el carrito, devolver error
-    if (carritoIndex === -1) {
-        return res.status(404).json({ error: 'Carrito no encontrado' });
-    }
-    // Si no existe el producto, devolver error
-    const productoExiste = products.find(p => String(p.id) === String(pid));
-    if (!productoExiste) {
-        return res.status(404).json({ error: 'Producto no encontrado' });
-    }
+    const carrito = carts[indexCarrito];
 
+    const indexProducto = carrito.products.findIndex(p => p.product == pid);
 
-    // Buscar producto dentro del carrito
-    const productoIndex = carts[carritoIndex].products.findIndex(p => String(p.product) === String(pid));
-
-    if (productoIndex === -1) {
-        // Se agrega si no existe
-        carts[carritoIndex].products.push({
-            product: pid,
-            quantity: 1
-        });
+    if (indexProducto === -1) {
+        carrito.products.push({ product: pid, quantity: 1 });
     } else {
-        // Se suma si ya existe
-        carts[carritoIndex].products[productoIndex].quantity += 1;
+        carrito.products[indexProducto].quantity++;
     }
 
-    await escribirArchivo('./api/carts.json', carts);
-    res.status(200).json(carts[carritoIndex]);
-});
-
-
-//! INICIAR SERVIDOR
-app.listen(PORT, () => console.log(`Servidor corriendo en http://localhost:${PORT}`));
+    await WriteData(CART_PATH, carts);
+    return carrito;
+}

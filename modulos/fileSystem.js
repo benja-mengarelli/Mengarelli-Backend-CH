@@ -1,8 +1,7 @@
 import { promises as fs} from 'fs';
 import path from 'path';
-import { readFile, writeFile } from 'fs/promises';
 
-export async function leerArchivo(urlArchivo) {
+export async function ReadData(urlArchivo) {
     try {
         const content = await fs.readFile(urlArchivo, 'utf8');
         return JSON.parse(content || '[]');
@@ -12,7 +11,7 @@ export async function leerArchivo(urlArchivo) {
     }
 }
 
-export async function escribirArchivo(url, data) {
+export async function WriteData(url, data) {
     try {
         await fs.writeFile(url, JSON.stringify(data), 'utf8');
     } catch (err) {
