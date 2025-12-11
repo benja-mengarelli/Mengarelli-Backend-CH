@@ -17,6 +17,7 @@ app.set('views', './views');
 // Middleware para parsear JSON y datos de formularios / middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
 
 // Configuración de sesiones
 app.use(session({
@@ -29,6 +30,7 @@ app.use(session({
 // Rutas
 app.use('/api', apiRouter);
 app.use('/', viewsRouter);
+
 
 // inicia el servidor
 app.listen(PORT, () => {

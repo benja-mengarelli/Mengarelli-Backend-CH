@@ -52,8 +52,6 @@ router.get("/login", (req, res) => {
 });
 router.post('/login', (req, res) => {
     const { username, password } = req.body;
-    console.log(req.body);
-    console.log(`Usuario: ${username}, Contraseña: ${password}`);
 
     if (username === "admin" && password === "1234") {
         req.session.nombre = username;
