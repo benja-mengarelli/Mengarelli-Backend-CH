@@ -16,7 +16,8 @@ router.get('/', (req, res) => {
         layout: 'main',
         title: 'Bienvenido a la página principal',
         logueado: req.session.logueado,
-        nombre: req.session.nombre
+        nombre: req.session.nombre,
+        admin: req.session.admin
     });
 });
 
@@ -29,7 +30,8 @@ router.get("/productos", async (req, res) => {
         title: "Productos",
         productos,
         logueado: req.session.logueado,
-        nombre: req.session.nombre
+        nombre: req.session.nombre,
+        admin: req.session.admin
     });
 });
 
@@ -42,7 +44,7 @@ router.get("/admin", (req, res) => {
     }
     console.log("Autorizado, mostrando admin panel");
     res.render("adminPanel", {
-        layout: "admin",
+        layout: "main",
         title: "Panel de Administración"
     });
 });
@@ -70,7 +72,7 @@ router.post('/login', (req, res) => {
         req.session.admin = true;
         req.session.logueado = true;
         console.log("Login exitoso como admin");
-        return res.redirect('/admin');
+        return res.redirect('/');
     }
 
     if (username.length > 0 && password.length > 0) {
@@ -84,6 +86,19 @@ router.post('/login', (req, res) => {
     // Credenciales inválidas
     console.log("Credenciales inválidas");
     res.render('login', {layout: "main", error: "Usuario o contraseña inválidos" });
+});
+
+// LOGOUT
+router.get('/logout', (req, res) => {
+    console.log("Procesando logout");
+    // Si hay un error volver al home
+    req.session.destroy(err => {
+        if (err) {
+            console.log("Error al cerrar sesión:", err);
+            return res.redirect('/');
+        }
+        res.redirect('/login');
+    });
 });
 
 export default router;
