@@ -1,14 +1,17 @@
-<h1>Gestión de Productos</h1>
-<div style="display: 
-flex; justify-content: center; align-items: center; height: 100vh; width: 100%;">
-    <div>
+<div id="contenedorForm"></div>
+<div class="ManejoProductos">
+    <div class="botoneraManejoProductos">
         <button id="btnAgregar">Agregar producto</button>
         <button id="btnEliminar"> Eliminar producto</button>
         <button id="btnEditar">Editar producto</button>
     </div>
-    <div>
-        {{>productos}}
+    <div class="VisualManejoProductos">
+        {{#each productos}}
+        <li>
+            <img src="{{this.imgURL}}" alt="{{this.title}}"><strong>{{this.title}}</strong> - ${{this.price}}<br>
+        </li>
+{{/each}}
     </div>
 
 </div>
-<script src="../../public/manejoProductos.js"></script>
+<script src="/manejoProductos.js"></script>

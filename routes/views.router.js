@@ -36,16 +36,32 @@ router.get("/productos", async (req, res) => {
 });
 
 // PANEL ADMIN 
-router.get("/admin", (req, res) => {
+router.get("/admin", async(req, res) => {
     console.log("Entrando a admin panel");
     if (!req.session.logueado || !req.session.admin) {
         console.log("No autorizado, redirigiendo a home desde admin panel");
         return res.redirect('/');
     }
     console.log("Autorizado, mostrando admin panel");
+    const productos = await getAllProducts();
     res.render("adminPanel", {
         layout: "main",
-        title: "Panel de Administración"
+        title: "Panel de Administración",
+        productos,
+        logueado: req.session.logueado,
+        nombre: req.session.nombre,
+        admin: req.session.admin
+    });
+});
+
+router.get('/partials/formProductmanager/:modo', (req, res) => {
+    const modo = req.params.modo;
+
+    res.render('partials/formProductmanager', {
+        layout: false,
+        modoAgregar: modo === "modoAgregar",
+        modoEditar: modo === "modoEditar",
+        modoEliminar: modo === "modoEliminar"
     });
 });
 

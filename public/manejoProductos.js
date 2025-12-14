@@ -15,8 +15,10 @@ document.getElementById("btnEliminar").addEventListener("click", () => {
     alert("Producto eliminado");
 });
 
+contenedorForm = document.getElementById("contenedorForm");
+
 async function cargarForm(modo) {
-    const respuesta = await fetch(`/partials/formProducto/${modo}`);
+    const respuesta = await fetch(`/partials/formProductmanager/${modo}`);
     const html = await respuesta.text();
     contenedorForm.innerHTML = html;
 } 

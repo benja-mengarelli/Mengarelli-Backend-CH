@@ -12,16 +12,91 @@
         text-decoration: none;
         color: inherit;
     }
+    main {
+        padding: 20px;
+        min-height: calc(100vh - 160px);
+    }
+    nav{
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-around;
+        background-color: #ff9a9aa0;
+        padding: 10px;
+    }
+    h2 {
+        color: #333;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin-top: 50px;
+    }
+    .loginForm {
+        max-width: 300px;
+        margin: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        border: 1px solid #030303;
+        border-radius: 5px;
+    }
+    .manejoProductos {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        height: 100vh;
+        width: 100%;
+    }
+    .botoneraManejoProductos {
+        max-width: 30%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-right: 20px;
+    }
+    .visualManejoProductos {
+        max-width: 70%;
+    }
+    li {
+        display: flex;
+        justify-content: flex-start;
+        list-style-type: none;
+        margin: 15px;
+    }
+    li img {
+        width: 20px;;
+        height: 20px;
+        margin-right: 10px;
+        margin-bottom: 5px;
+    }
+    .contenedorForm {
+        margin-bottom: 20px;
+        position: relative;
+        top: 30%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+        
+    }
+    footer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 60px;
+        background-color: #f1f1f1;
+    }
 </style>
 
-<body style="height: 100vh;">
+<body>
     {{> navbar}}
 
     <main>
         {{#if logueado}}
             {{{body}}}
         {{else}}
-            <h2 style="text-align:center; margin-top:50px;">Por favor, inicie sesión para acceder a esta página.</h2>
+            <h2>Por favor, inicie sesión para acceder a esta página.</h2>
             {{> login}}
         {{/if}}
     </main>
