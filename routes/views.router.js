@@ -54,14 +54,16 @@ router.get("/admin", async(req, res) => {
     });
 });
 
-router.get('/partials/formProductmanager/:modo', (req, res) => {
+router.get('/partials/formProductmanager/:modo', async(req, res) => {
     const modo = req.params.modo;
+    const productos = await getAllProducts();
 
     res.render('partials/formProductmanager', {
         layout: false,
         modoAgregar: modo === "modoAgregar",
         modoEditar: modo === "modoEditar",
-        modoEliminar: modo === "modoEliminar"
+        modoEliminar: modo === "modoEliminar",
+        productos
     });
 });
 

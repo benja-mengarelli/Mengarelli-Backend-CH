@@ -8,6 +8,11 @@
 </head>
 
 <style>
+    *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
     a {
         text-decoration: none;
         color: inherit;
@@ -27,7 +32,7 @@
         color: #333;
         font-family: Arial, sans-serif;
         text-align: center;
-        margin-top: 50px;
+        margin-top: 5px;
     }
     .loginForm {
         max-width: 300px;
@@ -41,13 +46,14 @@
         border: 1px solid #030303;
         border-radius: 5px;
     }
-    .manejoProductos {
+    .ManejoProductos {
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        height: 100vh;
+        min-height: 90%;
         width: 100%;
+        margin-top: 15px;
     }
     .botoneraManejoProductos {
         max-width: 30%;
@@ -58,10 +64,11 @@
     }
     .visualManejoProductos {
         max-width: 70%;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
     }
     li {
-        display: flex;
-        justify-content: flex-start;
         list-style-type: none;
         margin: 15px;
     }
@@ -72,12 +79,20 @@
         margin-bottom: 5px;
     }
     .contenedorForm {
+        height: 300px;
+        width: 300px;
+        border: 1px solid #000;
         margin-bottom: 20px;
-        position: relative;
-        top: 30%;
+        position: absolute;
+        top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         z-index: 10;
+        background: rgba(0,0,0,0.5);
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
         
     }
     footer {
