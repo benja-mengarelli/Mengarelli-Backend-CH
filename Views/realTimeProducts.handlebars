@@ -1,0 +1,28 @@
+<h2>MANEJO DE PRODUCTOS EN TIEMPO REAL</h2>
+{{> manejoProductos}}
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+
+socket.on('productUpdate', (data) => {
+    const list = document.querySelector('.VisualManejoProductos');
+
+    if (data.action === 'create') {
+        const li = document.createElement('li');
+        li.id = `product-${data.product.id}`;
+        li.innerHTML = `<img src="${data.product.imgURL}" alt="${data.product.title}"><strong>${data.product.title}</strong> - $${data.product.price}<br>`;
+        list.appendChild(li);
+    } else if (data.action === 'update') {
+        const li = document.getElementById(`product-${data.product.id}`);
+        if (li) {
+            li.innerHTML = `<img src="${data.product.imgURL}" alt="${data.product.title}"><strong>${data.product.title}</strong> - $${data.product.price}<br>`;
+        }
+    } else if (data.action === 'delete') {
+        const li = document.getElementById(`product-${data.product.id}`);
+        if (li) {
+            li.remove();
+        }
+    }
+});
+</script>

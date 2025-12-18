@@ -4,6 +4,7 @@ import viewsRouter from './routes/views.router.js';
 import apiRouter from './routes/api.router.js';
 // para manejo de sesiones
 import session from 'express-session';
+import { initSocket } from './socket.js';
 
 const app = express();
 // al subir a producción, usar el puerto definido en las variables de entorno
@@ -24,7 +25,7 @@ app.use(session({
     secret: 'mi_secreto_de_sesion',
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 180000 } // sesión válida por 3 minutos
+    cookie: { maxAge: 1800000 } // sesión válida por 30 minutos
 }));
 
 // Rutas
@@ -33,6 +34,8 @@ app.use('/', viewsRouter);
 
 
 // inicia el servidor
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto http://localhost:${PORT}`);
 });
+
+initSocket(server);

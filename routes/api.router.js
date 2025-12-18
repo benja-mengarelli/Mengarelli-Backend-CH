@@ -9,6 +9,7 @@ import {
     getCartById,
     addProductToCart
 } from '../server.js';
+import { emitProductUpdate } from '../socket.js';
 
 const router = Router();
 
@@ -51,19 +52,21 @@ router.get("/admin/products", async (req, res) => {
 });
 router.post("/admin/products", async (req, res) => {
     const creado = await createProduct(req.body);
+    emitProductUpdate('create', creado);
     res.status(201).json(creado);
 });
 router.put("/admin/products/:pid", async (req, res) => {
     const actualizado = await updateProduct(req.params.pid, req.body);
     if (!actualizado) return res.status(404).json({ error: "No encontrado" });
+    emitProductUpdate('update', actualizado);
     res.json(actualizado);
 });
 router.delete("/admin/products/:pid", async (req, res) => {
     const ok = await deleteProduct(req.params.pid);
     if (!ok) return res.status(404).json({ error: "No encontrado" });
+    emitProductUpdate('delete', { id: req.params.pid });
     res.json({ message: "Eliminado" });
 });
-
 
 
 //! CARRITOS

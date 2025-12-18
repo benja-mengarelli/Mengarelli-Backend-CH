@@ -2,5 +2,12 @@
 
 <p>Explora nuestros productos!</p>
 
-<a href="/productos">Ver productos</a>
-<p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Architecto blanditiis praesentium veritatis ducimus. Dolores ducimus, accusamus asperiores, esse culpa maxime quidem non voluptatum, ratione rem eius optio odio cum quo!</p>
+<h2>Productos</h2>
+
+<ul>
+{{#each productos}}
+    <li>
+        <img src="{{this.imgURL}}" alt="{{this.title}}"><strong>{{this.title}}</strong> - ${{this.price}}<br>
+    </li>
+{{/each}}
+</ul>

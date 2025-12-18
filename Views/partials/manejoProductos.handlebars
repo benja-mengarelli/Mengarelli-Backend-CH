@@ -7,11 +7,13 @@
     </div>
     <div class="VisualManejoProductos">
         {{#each productos}}
-        <li>
+        <li id="product-{{this.id}}">
             <img src="{{this.imgURL}}" alt="{{this.title}}"><strong>{{this.title}}</strong> - ${{this.price}}<br>
         </li>
 {{/each}}
     </div>
 
 </div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script src="/manejoProductos.js"></script>

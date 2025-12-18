@@ -4,7 +4,7 @@ import { getAllProducts } from "../server.js";
 const router = Router();
 
 //? RUTAS
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
     console.log("Entrando a home");
 
     if (!req.session.logueado) {
@@ -12,9 +12,11 @@ router.get('/', (req, res) => {
         return res.redirect('/login');
     }
     console.log("Logueado, mostrando home desde get home");
+    const productos = await getAllProducts();
     res.render('home', {
         layout: 'main',
         title: 'Bienvenido a la página principal',
+        productos,
         logueado: req.session.logueado,
         nombre: req.session.nombre,
         admin: req.session.admin
@@ -44,7 +46,7 @@ router.get("/admin", async(req, res) => {
     }
     console.log("Autorizado, mostrando admin panel");
     const productos = await getAllProducts();
-    res.render("adminPanel", {
+    res.render("realTimeProducts", {
         layout: "main",
         title: "Panel de Administración",
         productos,

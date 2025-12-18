@@ -1,5 +1,5 @@
 {{#if modoAgregar}}
-<form action="/admin/products" method="POST" id="formAgregar">
+<form id="formAgregar">
     <label for="nombre">Nombre del producto</label>
     <input type="text" id="nombre" name="nombre" placeholder="Nombre del producto" required min="1" max="50">
     <label for="price">Precio del producto</label>
@@ -9,7 +9,7 @@
 {{/if}}
 
 {{#if modoEditar}}
-<form action="/admin/products" method="PUT" id="formEditar">
+<form id="formEditar">
     <!-- campos para editar -->
     <label for="select">Ingrese producto a editar</label>
     <select name="listaProductos" id="">
@@ -20,13 +20,13 @@
     <label for="nombre">Nombre del producto</label>
     <input type="text" id="nombre" name="nombre" placeholder="Nombre del producto" required min="1" max="50">
     <label for="price">Precio del producto</label>
-    <input type="number" id="precio" name="precio" placeholder="Precio del producto" required min="0" step="0.01">
+    <input type="number" id="precio" name="precio" placeholder="Precio del producto" required min="0" step="0.5">
     <button type="submit">Confirmar</button>
 </form>
 {{/if}}
 
 {{#if modoEliminar}}
-<form action="/admin/products" method="delete" id="formEliminar">
+<form id="formEliminar">
     <select name="listaProductos" id="">
         {{#each productos}}
         <option value="{{this.id}}">{{this.title}}</option>

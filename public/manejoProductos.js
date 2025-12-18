@@ -1,85 +1,95 @@
+function mostrarToast(mensaje, tipo) {
+    Toastify({
+        text: mensaje,
+        duration: 3000,
+        gravity: "top",
+        position: "right",
+        backgroundColor: tipo? "green" : "red",
+    }).showToast();
+}
+
 const contenedorForm = document.getElementById("contenedorForm");
 
 // Manejo de botones panel admin
 document.getElementById("btnAgregar").addEventListener("click", () => {
     cargarForm("modoAgregar");
-    alert("Producto agregado");
 });
 
 document.getElementById("btnEditar").addEventListener("click", () => {
     cargarForm("modoEditar");
-    // Lógica para actualizar un producto
-    alert("Producto actualizado");
 });
 
 document.getElementById("btnEliminar").addEventListener("click", () => {
     cargarForm("modoEliminar");
-    // Lógica para eliminar un producto
-    alert("Producto eliminado");
 });
 
 // Renderizado del formulario según el modo
 async function cargarForm(modo) {
-
-    if (contenedorForm.style.display === "none" || contenedorForm.style.display === "") {
-        contenedorForm.style.display = "flex";
-    } else {
-        contenedorForm.style.display = "none";
-        contenedorForm.innerHTML = "";
-    }
+    contenedorForm.style.display = "flex";
 
     const respuesta = await fetch(`/partials/formProductmanager/${modo}`);
     const html = await respuesta.text();
     contenedorForm.innerHTML = html;
+
+    contenedorForm.querySelector("form").addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        if (e.target.id === "formAgregar") {
+            agregarProducto(e);
+            mostrarToast("Producto agregado con éxito", true);
+        };
+
+        if (e.target.id === "formEditar") {
+            editarProducto(e);
+            mostrarToast("Producto editado con éxito", true);
+        };
+
+        if (e.target.id === "formEliminar") {
+            eliminarProducto(e);
+            mostrarToast("Producto eliminado con éxito", false);
+        }
+
+        contenedorForm.style.display = "none";
+        contenedorForm.innerHTML = "";
+    });
+};
+
+async function agregarProducto(e) {
+    const data = {
+        title: e.target.nombre.value,
+        price: e.target.precio.value
+    };
+
+    const res = await fetch("/api/admin/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+
+    console.log(await res.json());
 }
 
+async function editarProducto(e) {
+    const pid = e.target.listaProductos.value;
 
-// Manejo de envíos de formularios
-document.addEventListener("submit", async (e) => {
-    e.preventDefault();
+    const data = {
+        title: e.target.nombre.value,
+        price: e.target.precio.value
+    };
 
-    // AGREGAR
-    if (e.target.id === "formAgregar") {
-        const data = {
-            title: e.target.nombre.value,
-            price: e.target.precio.value
-        };
+    const res = await fetch(`/api/admin/products/${pid}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
 
-        const res = await fetch("/admin/products", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        });
+    console.log(await res.json());
+}
 
-        console.log(await res.json());
-    }
+async function eliminarProducto(e) {
+    const pid = e.target.listaProductos.value;
 
-    // EDITAR
-    if (e.target.id === "formEditar") {
-        const pid = e.target.listaProductos.value;
+    const res = await fetch(`/api/admin/products/${pid}`, { method: "DELETE" });
 
-        const data = {
-            title: e.target.nombre.value,
-            price: e.target.precio.value
-        };
-
-        const res = await fetch(`/admin/products/${pid}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        });
-
-        console.log(await res.json());
-    }
-
-    // ELIMINAR
-    if (e.target.id === "formEliminar") {
-        const pid = e.target.listaProductos.value;
-
-        const res = await fetch(`/admin/products/${pid}`, {
-            method: "DELETE"
-        });
-
-        console.log(await res.json());
-    }
-});
+    console.log(await res.json());
+}
