@@ -7,7 +7,7 @@ import session from 'express-session';
 import { initSocket } from './socket.js';
 
 const app = express();
-// al subir a producción, usar el puerto definido en las variables de entorno
+//usar el puerto definido en las variables de entorno
 const PORT = process.env.PORT || 3000;
 
 // Configuración de Handlebars

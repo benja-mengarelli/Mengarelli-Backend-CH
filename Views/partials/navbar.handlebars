@@ -2,14 +2,12 @@
     <nav>
         {{#if logueado}}
             <span><strong>Hola 🏋️{{nombre}}</strong></span>
-
+            <a href="/">🏠Home</a>
             {{#if admin}}
                 <a href="/admin">✅Panel Admin</a>
             {{else}}
-                <span>⛔Panel admin</span>
+                <a href="/productos">🛒Productos</a>
             {{/if}}
-            <a href="/">🏠Home</a>
-            <a href="/productos">🛒Productos</a>
             <a href="/logout">👋Cerrar sesion</a>
         {{else}}
             <a href="/login">👋Ingresar</a>

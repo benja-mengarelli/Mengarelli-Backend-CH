@@ -1,0 +1,166 @@
+:root {
+    --color-principal: #023436;
+    --color-secundario: #03B5AA;
+    --color-terciario: #FF8552;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--color-principal);
+    color: var(--color-terciario);
+    min-height: calc(100vh - 60px - 80px);
+}
+
+nav {
+    display: flex;
+    justify-content: space-around;
+    background-color: var(--color-secundario);
+    padding: 15px;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+main {
+    /* padding: 20px 0; */
+    min-height: calc(100vh - 60px - 80px);
+    /* Altura total menos header y footer */
+}
+
+h2 {
+    text-align: center;
+    margin: 10px 0;
+}
+
+.loginForm {
+    max-width: 300px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    border: 1px solid var(--color-secundario);
+    border-radius: 5px;
+}
+
+.loginForm input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--color-secundario);
+    border-radius: 3px;
+}
+
+.loginForm button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--color-secundario);
+    color: var(--color-principal);
+    cursor: pointer;
+}
+
+.ManejoProductos {
+    border: 1px solid var(--color-secundario);
+    display: grid;
+    grid-template-columns: 20% 80%;
+    gap: 15px;
+    height: 100%;
+    width: 100%;
+    margin-top: 15px;
+    overflow: hidden;
+}
+
+.botoneraManejoProductos {
+    border: 1px solid var(--color-secundario);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px;
+    max-height: 90vh;
+}
+
+.VisualManejoProductos {
+    border: 1px solid var(--color-secundario);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+li {
+    border: 1px solid var(--color-secundario);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    list-style-type: none;
+    margin: 10px;
+    width: 250px;
+    height: 100px;
+}
+
+li img {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+}
+
+li .comprarProducto {
+    gap: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+}
+
+button {
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: var(--color-secundario);
+    color: var(--color-principal);
+    cursor: pointer;
+}
+
+.contenedorForm {
+    height: 300px;
+    width: 300px;
+    border: 1px solid var(--color-secundario);
+    margin-bottom: 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    background: var(--color-principal);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+}
+
+footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+    background-color: var(--color-secundario);
+}
