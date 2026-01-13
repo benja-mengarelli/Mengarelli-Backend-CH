@@ -1,11 +1,15 @@
 import express from 'express';
 import handlebars from 'express-handlebars';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 import viewsRouter from './routes/views.router.js';
 import apiRouter from './routes/api.router.js';
+
 // para manejo de sesiones
 import session from 'express-session';
 import { initSocket } from './socket.js';
 
+dotenv.config();
 const app = express();
 //usar el puerto definido en las variables de entorno
 const PORT = process.env.PORT || 3000;
@@ -19,6 +23,11 @@ app.set('views', './views');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
+
+mongoose.connect(process.env.MONGO_URI)
+.then(() => console.log('Conectado a la base de datos MongoDB'))
+.catch(err => console.error('Error al conectar a MongoDB:', err));
+
 
 // Configuración de sesiones
 app.use(session({
