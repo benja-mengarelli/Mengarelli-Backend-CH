@@ -1,96 +1,60 @@
 import { Router } from "express";
+import { emitProductUpdate } from '../socket.js';
 import {
-    getAllProducts,
-    getProductById,
-    createProduct,
+    getProducts,
+    addProduct,
     updateProduct,
     deleteProduct,
-    createCart,
-    getCartById,
-    addProductToCart
-} from '../server.js';
-import { emitProductUpdate } from '../socket.js';
+    getProductById,
+    getProductsByCategory,
+    getProductsBySubcategory,
+    searchProductsByName
+} from '../controller/product.controller.js';
+import {
+    getCart,
+    addProductToCart,
+    removeProductFromCart,
+    updateProductQuantity,
+    clearCart
+} from '../controller/cart.controller.js';
+import {
+    showAllSales,
+    showUserSales,
+    getSaleByIdAndUpdate
+} from '../controller/sales.controller.js';
+import { get } from "mongoose";
 
 const router = Router();
 
-//? RUTAS
 //! PRODUCTOS
+router.get("/products", getProducts); // Obtener todos los productos
+router.get("/products/:pid", getProductById); // Obtener producto por ID
+router.get("/products/category/:category", getProductsByCategory); // Obtener productos por categoría
+router.get("/products/subcategory/:subcategory", getProductsBySubcategory); // Obtener productos por subcategoría
+router.get("/products/search/:name", searchProductsByName); // Buscar productos por nombre
 
-router.get("/products", async (req, res) => {
-    res.json(await getAllProducts());
-});
-
-router.get("/products/:pid", async (req, res) => {
-    const prod = await getProductById(req.params.pid);
-    if (!prod) return res.status(404).json({ error: "No encontrado" });
-    res.json(prod);
-});
-
-router.post("/products", async (req, res) => {
-    const creado = await createProduct(req.body);
-    res.status(201).json(creado);
-});
-
-router.put("/products/:pid", async (req, res) => {
-    const actualizado = await updateProduct(req.params.pid, req.body);
-    if (!actualizado) return res.status(404).json({ error: "No encontrado" });
-    res.json(actualizado);
-});
-
-router.delete("/products/:pid", async (req, res) => {
-    const ok = await deleteProduct(req.params.pid);
-    if (!ok) return res.status(404).json({ error: "No encontrado" });
-    res.json({ message: "Eliminado" });
-});
-
+router.post("/products", addProduct); //! CAMBIAR A FUTURO, PERMITE A USER CREAR PRODUCTOS
+router.put("/products/:pid", updateProduct); //! ACTUALIZAR PRODUCTO (modificar permiso por si user puede o no modificar productos)
+router.delete("/products/:pid", deleteProduct); //! Cambiar a futuro, permite a user eliminar productos -- Cambiar por solo actualizar estado de producto
 
 //! MANEJO ADMIN PRODUCT MANAGER
 // Rutas similares pero bajo el prefijo /admin
 // obtener productos, agregar, actualizar, eliminar
-router.get("/admin/products", async (req, res) => {
-    res.json(await getAllProducts());
-});
-router.post("/admin/products", async (req, res) => {
-    const creado = await createProduct(req.body);
-    emitProductUpdate('create', creado);
-    res.status(201).json(creado);
-});
-router.put("/admin/products/:pid", async (req, res) => {
-    const actualizado = await updateProduct(req.params.pid, req.body);
-    if (!actualizado) return res.status(404).json({ error: "No encontrado" });
-    emitProductUpdate('update', actualizado);
-    res.json(actualizado);
-});
-router.delete("/admin/products/:pid", async (req, res) => {
-    const ok = await deleteProduct(req.params.pid);
-    if (!ok) return res.status(404).json({ error: "No encontrado" });
-    emitProductUpdate('delete', { id: req.params.pid });
-    res.json({ message: "Eliminado" });
-});
-
+router.get("/admin/products", getProducts);
+router.post("/admin/products", addProduct);
+router.put("/admin/products/:pid", updateProduct);
+router.delete("/admin/products/:pid", deleteProduct);
 
 //! CARRITOS
+router.get("/carts/:cid", getCart); // Crear un nuevo carrito o obtener el existente
+router.post("/carts/:cid/product/:pid", addProductToCart); // Agregar producto al carrito
+router.patch("/carts/:cid/product/:pid", removeProductFromCart); // Eliminar producto del carrito
+router.delete("/carts/clear", clearCart); // Limpiar carrito
+router.put("/carts/product", updateProductQuantity); // Actualizar cantidad de un producto en el carrito
 
-router.post("/carts", async (req, res) => {
-    res.status(201).json(await createCart());
-});
-
-router.get("/carts/:cid", async (req, res) => {
-    const cart = await getCartById(req.params.cid);
-    if (!cart) return res.status(404).json({ error: "No encontrado" });
-    res.json(cart.products);
-});
-
-router.post("/carts/:cid/product/:pid", async (req, res) => {
-    const updated = await addProductToCart(req.params.cid, req.params.pid);
-
-    if (updated === null)
-        return res.status(404).json({ error: "Carrito no encontrado" });
-
-    if (updated === false)
-        return res.status(404).json({ error: "Producto no encontrado" });
-
-    res.json(updated);
-});
+//! Rutas de ventas
+router.get("/sales", showAllSales); // Mostrar todas las ventas (solo admin)
+router.get("/sales/user", showUserSales); // Mostrar ventas del usuario autenticado
+router.put("/sales/:sid", getSaleByIdAndUpdate); // Manipular una venta específica por ID
 
 export default router;

@@ -9,6 +9,11 @@ const salesSchema = new mongoose.Schema({
             quantity: { type: Number, default: 1, required: true },
             price: { type: Number, required: true }
         }],
+    modifications: [
+        {
+            description: { type: String, default: '', required: false},
+        }
+    ],
     total: { type: Number, required: true }
 });
 

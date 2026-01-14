@@ -1,6 +1,6 @@
-import Cart from '../models/Cart.js';
-import Product from '../models/Product.js';
-import Sale from '../models/Sale.js';
+import Cart from '../models/cart.model.js';
+import Product from '../models/product.model.js';
+import Sale from '../models/sales.model.js';
 
 // Obtener carrito
 export const getCart = async (req, res) => {
