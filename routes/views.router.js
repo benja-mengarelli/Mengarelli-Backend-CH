@@ -1,74 +1,103 @@
 import { Router } from "express";
-/* import { getAllProducts } from "../server.js"; */
-import { getAllProducts } from "../controller/product.controller.js";
+import { getAllProducts, paginateProducts } from "../controller/product.controller.js";
 
 const router = Router();
 
-//? RUTAS
-router.get('/', async (req, res) => {
-
+// ? Middleware para autenticación
+const requireAuth = (req, res, next) => {
     if (!req.session.logueado) {
-        console.log("No logueado, redirigiendo a login desede home");
         return res.redirect('/login');
     }
-    console.log("Logueado, mostrando home desde Views home");
-    
-    const productos = await getAllProducts();
-    res.render('home', {
-        layout: 'main',
-        title: 'Bienvenido a la página principal',
-        productos,
-        logueado: req.session.logueado,
-        nombre: req.session.nombre,
-        admin: req.session.admin
-    });
-});
+    next();
+};
 
-// PRODUCTOS 
-router.get("/productos", async (req, res) => {
-    console.log("Entrando a productos");
-    const productos = await getAllProducts();
-    res.render("productos", {
-        layout: "main",
-        title: "Productos",
-        productos,
-        logueado: req.session.logueado,
-        nombre: req.session.nombre,
-        admin: req.session.admin
-    });
-    console.log("Productos mostrados desde Views productos");
-});
-
-// PANEL ADMIN 
-router.get("/admin", async(req, res) => {
-    console.log("Entrando a admin panel");
+const requireAdmin = (req, res, next) => {
     if (!req.session.logueado || !req.session.admin) {
         return res.redirect('/');
     }
-    const productos = await getAllProducts();
-    res.render("realTimeProducts", {
-        layout: "main",
-        title: "Panel de Administración",
-        productos,
-        logueado: req.session.logueado,
-        nombre: req.session.nombre,
-        admin: req.session.admin
-    });
-    console.log("Panel de administración mostrado desde Views realTimeProducts");
+    next();
+};
+
+//? Helper para sesión
+const getSessionData = (req) => ({
+    logueado: req.session.logueado,
+    nombre: req.session.nombre,
+    admin: req.session.admin
 });
 
-router.get('/partials/formProductmanager/:modo', async(req, res) => {
-    const modo = req.params.modo;
-    const productos = await getAllProducts();
+//? RUTAS
+router.get('/', requireAuth, async (req, res) => {
+    try {
+        const productos = await getAllProducts();
+        res.render('home', {
+            layout: 'main',
+            title: 'Bienvenido a la página principal',
+            productos,
+            ...getSessionData(req)
+        });
+    } catch (error) {
+        console.error('Error en home:', error);
+        res.status(500).render('error', { 
+            layout: 'main', 
+            error: 'Error al cargar la página principal' 
+        });
+    }
+});
 
-    res.render('partials/formProductmanager', {
-        layout: false,
-        modoAgregar: modo === "modoAgregar",
-        modoEditar: modo === "modoEditar",
-        modoEliminar: modo === "modoEliminar",
-        productos
-    });
-    console.log(`Formulario de producto (${modo}) renderizado desde views`);
+// PRODUCTOS 
+router.get("/productos", requireAuth, async (req, res) => {
+    try {
+        const productos = await getAllProducts();
+        res.render("productos", {
+            layout: "main",
+            title: "Productos",
+            productos,
+            ...getSessionData(req)
+        });
+    } catch (error) {
+        console.error('Error en productos:', error);
+        res.status(500).render('error', { 
+            layout: 'main', 
+            error: 'Error al cargar los productos' 
+        });
+    }
+});
+
+// PANEL ADMIN 
+router.get("/admin", requireAdmin, async (req, res) => {
+    try {
+        const productos = await getAllProducts();
+        res.render("realTimeProducts", {
+            layout: "main",
+            title: "Panel de Administración",
+            productos,
+            ...getSessionData(req)
+        });
+    } catch (error) {
+        console.error('Error en admin panel:', error);
+        res.status(500).render('error', { 
+            layout: 'main', 
+            error: 'Error al cargar el panel de administración' 
+        });
+    }
+});
+
+router.get('/partials/formProductmanager/:modo', requireAdmin, async (req, res) => {
+    try {
+        const modo = req.params.modo;
+        const productos = await getAllProducts();
+
+        res.render('partials/formProductmanager', {
+            layout: false,
+            modoAgregar: modo === "modoAgregar",
+            modoEditar: modo === "modoEditar",
+            modoEliminar: modo === "modoEliminar",
+            productos
+        });
+    } catch (error) {
+        console.error('Error en formProductmanager:', error);
+        res.status(500).json({ error: 'Error al cargar el formulario' });
+    }
 });
 
 
@@ -82,10 +111,11 @@ router.get("/login", (req, res) => {
         title: "Login"
     });
 });
+
 router.post('/login', (req, res) => {
-    
     const { username, password } = req.body;
 
+    // Validar credenciales (delegado a controlador en el futuro)
     if (username === "admin" && password === "1234") {
         req.session.nombre = username;
         req.session.admin = true;
@@ -99,16 +129,19 @@ router.post('/login', (req, res) => {
         req.session.logueado = true;
         return res.redirect('/');
     }
+
     // Credenciales inválidas
-    res.render('login', {layout: "main", error: "Usuario o contraseña inválidos" });
+    res.render('login', {
+        layout: "main",
+        error: "Usuario o contraseña inválidos" 
+    });
 });
 
 // LOGOUT
 router.get('/logout', (req, res) => {
-    // Si hay un error volver al home
     req.session.destroy(err => {
         if (err) {
-            console.log("Error al cerrar sesión:", err);
+            console.error("Error al cerrar sesión:", err);
             return res.redirect('/');
         }
         res.redirect('/login');

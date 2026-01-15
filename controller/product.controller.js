@@ -1,3 +1,4 @@
+import { create } from 'express-handlebars';
 import Product from '../models/product.model.js';
 
 // Función auxiliar para obtener productos (sin req/res)
@@ -5,7 +6,7 @@ export const getAllProducts = async () => {
     try {
         const products = await Product.find().lean();
         return products;
-    } catch(error){
+    } catch (error) {
         console.error('Error en getAllProducts:', error.message);
         throw error;
     }
@@ -16,7 +17,7 @@ export const getProducts = async (req, res) => {
     try {
         const products = await Product.find().lean();
         res.json(products);
-    } catch(error){
+    } catch (error) {
         console.error('Error en getProducts:', error.message);
         res.status(500).json({ error: 'Error al obtener los productos', details: error.message });
     }
@@ -39,7 +40,7 @@ export const addProduct = async (req, res) => {
     } catch (error) {
         console.error('Error en addProduct:', error.message);
         res.status(500).json({ error: 'Error al agregar el producto', details: error.message });
-    } 
+    }
 };
 
 // Actualizar producto
@@ -58,7 +59,8 @@ export const updateProduct = async (req, res) => {
         res.json(updatedProduct);
     } catch (error) {
         console.error('Error en updateProduct:', error.message);
-        res.status(500).json({ error: 'Error al actualizar el producto', details: error.message
+        res.status(500).json({
+            error: 'Error al actualizar el producto', details: error.message
         });
     }
 };
@@ -74,7 +76,8 @@ export const deleteProduct = async (req, res) => {
         res.json({ message: 'Producto eliminado correctamente' });
     } catch (error) {
         console.error('Error en deleteProduct:', error.message);
-        res.status(500).json({ error: 'Error al eliminar el producto', details: error.message
+        res.status(500).json({
+            error: 'Error al eliminar el producto', details: error.message
         });
     }
 };
@@ -93,36 +96,78 @@ export const getProductById = async (req, res) => {
     }
 };
 
-// Obtener productos por categoría
-export const getProductsByCategory = async (req, res) => {
+//Paginacion de productos
+export const paginateProducts = async (req, res) => {
     try {
-        const { category } = req.params;
-        const products = await Product.find({ categoria: category }).lean();
-        res.json(products);
+        // establecer valores de paginacion (o los ya definidos)
+        // valores por defecto para paginación y ordenamiento
+        const {
+            categoria,
+            subcategoria,
+            limit = 10,
+            page = 1,
+            search,
+        } = req.query;
+        
+        const {sort} = req.query // 'precioAsc' | 'precioDesc' | 'nombreAsc' | 'nombreDesc' | Default
+        let sortOption = {};  //! Cambiar let a const y usar un objeto para mapear las opciones de ordenamiento
+        switch (sort) {
+            case 'precioAsc':
+                sortOption = { precio: 1 };
+                break;
+            case 'precioDesc':
+                sortOption = { precio: -1 };
+                break;
+            case "nombreAsc":
+                sortOption = { nombre: 1 };
+                break;
+            case "nombreDesc":
+                sortOption = { nombre: -1 };
+                break;
+            default:
+                sortOption = {createdAt: -1  }; // Ordenar por fecha de creación descendente por defecto
+        }
+
+        // convertir a number limit y page
+        const limitNum = parseInt(limit) > 0 ? parseInt(limit) : 10;
+        const pageNum = parseInt(page) > 0 ? parseInt(page) : 1;
+
+        // construir filtros
+        const filters = {};
+        if (categoria) filters.categoria = categoria;
+        if (subcategoria) filters.subcategoria = subcategoria;
+        if (search) filters.nombre = { $regex: search, $options: 'i' };
+
+        // verificar cantidad de productos para page
+        const totalProducts = await Product.countDocuments(filters);
+        const totalPages = Math.ceil(totalProducts / limitNum);
+
+        // verificar que la pagina solicitada no exceda el total de paginas
+        if (pageNum > totalPages && totalPages !== 0) {
+            return res.status(400).json({ error: 'La página solicitada excede el total de páginas disponibles' });
+        }
+
+        // construir has nextpage y hasprevpage
+        const hasNextPage = pageNum < totalPages;
+        const hasPrevPage = pageNum > 1;
+
+        // Hacer la paginacion con o sin filtros
+        const products = await Product.find(filters)
+            .sort(sortOption)
+            .skip((pageNum - 1) * limitNum)
+            .limit(limitNum)
+            .lean();
+        res.json({
+            products,
+            pageNum,
+            limitNum,
+            sort,
+            totalProducts,
+            totalPages,
+            hasNextPage,
+            hasPrevPage
+        });
     } catch (error) {
-        res.status(500).json({ error: 'Error al obtener los productos por categoría' });
+        res.status(500).json({ error: 'Error al paginar los productos' });
     }
 };
-
-// Obtener productos por subcategoría
-export const getProductsBySubcategory = async (req, res) => {
-    try {
-        const { subcategory } = req.params;
-        const products = await Product.find({ subcategoria: subcategory }).lean();
-        res.json(products);
-    } catch (error) {
-        res.status(500).json({ error: 'Error al obtener los productos por subcategoría' });
-    }
-};
-
-// Buscar productos por nombre
-export const searchProductsByName = async (req, res) => {
-    try {
-        const { name } = req.params;
-        const products = await Product.find({ nombre: { $regex: name, $options: 'i' } }).lean();
-        res.json(products);
-    } catch (error) {
-        res.status(500).json({ error: 'Error al buscar productos por nombre' });
-    }
-};
-

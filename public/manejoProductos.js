@@ -1,3 +1,5 @@
+/* import { emitProductUpdate } from '../socket.js'; */
+
 function mostrarToast(mensaje, tipo) {
     Toastify({
         text: mensaje,
@@ -85,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 eliminarProducto(e);
                 mostrarToast("Producto eliminado con éxito", false);
             }
-    
+            /* emitProductUpdate(); */ // Notificar cambios via socket
             contenedorForm.style.display = "none";
             contenedorForm.innerHTML = "";
         });
