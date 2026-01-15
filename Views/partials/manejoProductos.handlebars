@@ -7,11 +7,11 @@
     </div>
     <div class="VisualManejoProductos">
         {{#each productos}}
-        <li id="product-{{this.id}}">
-            <img src="{{this.imgURL}}" alt="{{this.title}}">
-            <strong>{{this.title}}</strong>
+        <li id="product-{{this._id}}">
+            <img src="{{this.imagenUrl}}" alt="{{this.nombre}}">
+            <strong>{{this.nombre}}</strong>
             <div class="comprarProducto">
-                ${{this.price}}
+                ${{this.precio}}
                 <button>Comprar</button>
             </div>
         </li>

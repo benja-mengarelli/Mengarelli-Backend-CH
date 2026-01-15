@@ -42,7 +42,7 @@ router.delete("/products/:pid", deleteProduct); //! Cambiar a futuro, permite a 
 // obtener productos, agregar, actualizar, eliminar
 router.get("/admin/products", getProducts);
 router.post("/admin/products", addProduct);
-router.put("/admin/products/:pid", updateProduct);
+router.patch("/admin/products/:pid", updateProduct);
 router.delete("/admin/products/:pid", deleteProduct);
 
 //! CARRITOS

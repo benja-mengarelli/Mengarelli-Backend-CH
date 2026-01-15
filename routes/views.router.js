@@ -1,17 +1,18 @@
 import { Router } from "express";
-import { getAllProducts } from "../server.js";
+/* import { getAllProducts } from "../server.js"; */
+import { getAllProducts } from "../controller/product.controller.js";
 
 const router = Router();
 
 //? RUTAS
 router.get('/', async (req, res) => {
-    console.log("Entrando a home");
 
     if (!req.session.logueado) {
         console.log("No logueado, redirigiendo a login desede home");
         return res.redirect('/login');
     }
-    console.log("Logueado, mostrando home desde get home");
+    console.log("Logueado, mostrando home desde Views home");
+    
     const productos = await getAllProducts();
     res.render('home', {
         layout: 'main',
@@ -35,16 +36,15 @@ router.get("/productos", async (req, res) => {
         nombre: req.session.nombre,
         admin: req.session.admin
     });
+    console.log("Productos mostrados desde Views productos");
 });
 
 // PANEL ADMIN 
 router.get("/admin", async(req, res) => {
     console.log("Entrando a admin panel");
     if (!req.session.logueado || !req.session.admin) {
-        console.log("No autorizado, redirigiendo a home desde admin panel");
         return res.redirect('/');
     }
-    console.log("Autorizado, mostrando admin panel");
     const productos = await getAllProducts();
     res.render("realTimeProducts", {
         layout: "main",
@@ -54,6 +54,7 @@ router.get("/admin", async(req, res) => {
         nombre: req.session.nombre,
         admin: req.session.admin
     });
+    console.log("Panel de administración mostrado desde Views realTimeProducts");
 });
 
 router.get('/partials/formProductmanager/:modo', async(req, res) => {
@@ -67,14 +68,13 @@ router.get('/partials/formProductmanager/:modo', async(req, res) => {
         modoEliminar: modo === "modoEliminar",
         productos
     });
+    console.log(`Formulario de producto (${modo}) renderizado desde views`);
 });
 
 
 // LOGIN 
 router.get("/login", (req, res) => {
-    console.log("Entrando a login");
     if (req.session.logueado) {
-        console.log("Ya logueado, redirigiendo a home desde login");
         return res.redirect('/');
     }
     res.render("login", {
@@ -83,7 +83,6 @@ router.get("/login", (req, res) => {
     });
 });
 router.post('/login', (req, res) => {
-    console.log("Procesando login");
     
     const { username, password } = req.body;
 
@@ -91,7 +90,6 @@ router.post('/login', (req, res) => {
         req.session.nombre = username;
         req.session.admin = true;
         req.session.logueado = true;
-        console.log("Login exitoso como admin");
         return res.redirect('/');
     }
 
@@ -99,18 +97,14 @@ router.post('/login', (req, res) => {
         req.session.nombre = username;
         req.session.admin = false;
         req.session.logueado = true;
-        console.log("Login exitoso como usuario regular");
         return res.redirect('/');
     }
-
     // Credenciales inválidas
-    console.log("Credenciales inválidas");
     res.render('login', {layout: "main", error: "Usuario o contraseña inválidos" });
 });
 
 // LOGOUT
 router.get('/logout', (req, res) => {
-    console.log("Procesando logout");
     // Si hay un error volver al home
     req.session.destroy(err => {
         if (err) {
