@@ -10,14 +10,12 @@ const requireAuth = (req, res, next) => {
     }
     next();
 };
-
 const requireAdmin = (req, res, next) => {
     if (!req.session.logueado || !req.session.admin) {
         return res.redirect('/');
     }
     next();
 };
-
 //? Helper para sesión
 const getSessionData = (req) => ({
     logueado: req.session.logueado,

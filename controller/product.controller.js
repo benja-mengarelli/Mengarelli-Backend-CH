@@ -47,20 +47,45 @@ export const addProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
     try {
         const { pid } = req.params;
-        const { nombre, precio, categoria, subcategoria, stock, imagenUrl } = req.body;
+
+        const updates = {};
+        const allowedFields = [
+            'nombre',
+            'precio',
+            'categoria',
+            'subcategoria',
+            'stock',
+            'imagenUrl'
+        ];
+
+        for (const field of allowedFields) {
+            if (req.body[field] !== undefined) {
+                updates[field] = req.body[field];
+            }
+        }
+
+        if (Object.keys(updates).length === 0) {
+            return res.status(400).json({
+                error: 'No se enviaron campos para actualizar'
+            });
+        }
+
         const updatedProduct = await Product.findByIdAndUpdate(
             pid,
-            { $set: req.body },
-            { new: true }
+            { $set: updates },
+            { new: true, runValidators: true }
         );
+
         if (!updatedProduct) {
             return res.status(404).json({ error: 'Producto no encontrado' });
         }
+
         res.json(updatedProduct);
     } catch (error) {
-        console.error('Error en updateProduct:', error.message);
+        console.error('Error en updateProduct:', error);
         res.status(500).json({
-            error: 'Error al actualizar el producto', details: error.message
+            error: 'Error al actualizar el producto',
+            details: error.message
         });
     }
 };
@@ -108,8 +133,8 @@ export const paginateProducts = async (req, res) => {
             page = 1,
             search,
         } = req.query;
-        
-        const {sort} = req.query // 'precioAsc' | 'precioDesc' | 'nombreAsc' | 'nombreDesc' | Default
+
+        const { sort } = req.query // 'precioAsc' | 'precioDesc' | 'nombreAsc' | 'nombreDesc' | Default
         let sortOption = {};  //! Cambiar let a const y usar un objeto para mapear las opciones de ordenamiento
         switch (sort) {
             case 'precioAsc':
@@ -125,7 +150,7 @@ export const paginateProducts = async (req, res) => {
                 sortOption = { nombre: -1 };
                 break;
             default:
-                sortOption = {createdAt: -1  }; // Ordenar por fecha de creación descendente por defecto
+                sortOption = { createdAt: -1 }; // Ordenar por fecha de creación descendente por defecto
         }
 
         // convertir a number limit y page

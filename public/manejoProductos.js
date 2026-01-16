@@ -1,5 +1,8 @@
 /* import { emitProductUpdate } from '../socket.js'; */
 
+// Initialize socket connection
+/* const socket = io ? io() : null; */
+
 function mostrarToast(mensaje, tipo) {
     Toastify({
         text: mensaje,
@@ -48,29 +51,56 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Renderizado del formulario según el modo
     async function cargarForm(modo) {
-        console.log("📝 Cargando formulario:", modo);
         contenedorForm.style.display = "flex";
     
         const respuesta = await fetch(`/partials/formProductmanager/${modo}`);
         const html = await respuesta.text();
         contenedorForm.innerHTML = html;
-        
-        console.log("✅ Formulario renderizado");
+
         
         // Agregar listener al cambio de categoría DESPUÉS de renderizar el form
         const categorySelect = contenedorForm.querySelector('select[name="Categoria"]');
         const imageInput = contenedorForm.querySelector('input[name="image"]');
         
         if (categorySelect && imageInput) {
-            console.log("✅ Listeners de categoría agregados");
             categorySelect.addEventListener('change', (e) => {
-                console.log("📸 Categoría seleccionada:", e.target.value);
                 const imageUrl = imageByCategory[e.target.value] || './images/img4.png';
                 imageInput.value = imageUrl;
-                console.log("✅ Imagen asignada:", imageUrl);
             });
         } else {
             console.warn("⚠️ Categoría o imagen input no encontrados");
+        }
+        
+        // Agregar listener al selector de productos para EDITAR
+        if (modo === "modoEditar") {
+            const productSelect = contenedorForm.querySelector('#listaProductosEditar');
+            if (productSelect) {
+                console.log("✅ Listener de selector de productos para EDITAR agregado");
+                productSelect.addEventListener('change', async (e) => {
+                    const productId = e.target.value;
+                    console.log("📦 Producto seleccionado para editar:", productId);
+                    try {
+                        // Fetch product data
+                        const res = await fetch(`/api/admin/products/${productId}`);
+                        const product = await res.json();
+                        
+                        console.log("📥 Datos del producto:", product);
+                        
+                        // Populate form fields
+                        const nombreInput = contenedorForm.querySelector('input[name="nombre"]');
+                        const precioInput = contenedorForm.querySelector('input[name="precio"]');
+                        const stockInput = contenedorForm.querySelector('input[name="stock"]');
+                        
+                        if (nombreInput) nombreInput.value = product.nombre || '';
+                        if (precioInput) precioInput.value = product.precio || '';
+                        if (stockInput) stockInput.value = product.stock || '';
+                        
+                        console.log("✅ Formulario de edición completado");
+                    } catch (error) {
+                        console.error("❌ Error al obtener datos del producto:", error);
+                    }
+                });
+            }
         }
     
         contenedorForm.querySelector("form").addEventListener("submit", (e) => {
@@ -118,11 +148,16 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("❌ Error:", result);
         } else {
             console.log("✅ Producto agregado:", result);
+            // Emit socket event for real-time update
+            /* if (socket) {
+                socket.emit('productUpdate', { action: 'create', product: result.payload || result });
+            } */
         }
     }
     
     async function editarProducto(e) {
-        const pid = e.target.listaProductos.value;
+        const productSelect = e.target.querySelector('select[name="listaProductos"]');
+        const pid = productSelect.value;
         console.log("✏️ Editando producto:", pid);
     
         const data = {
@@ -133,7 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
         console.log("📤 Data a enviar:", data);
         const res = await fetch(`/api/admin/products/${pid}`, {
-            method: "PUT",
+            method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         });
@@ -144,6 +179,10 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("❌ Error:", result);
         } else {
             console.log("✅ Producto editado:", result);
+            // Emit socket event for real-time update
+            /* if (socket) {
+                socket.emit('productUpdate', { action: 'update', product: { _id: pid, ...data } });
+            } */
         }
     }
     
@@ -159,6 +198,10 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("❌ Error:", result);
         } else {
             console.log("✅ Producto eliminado");
+            // Emit socket event for real-time update
+            /* if (socket) {
+                socket.emit('productUpdate', { action: 'delete', product: { _id: pid } });
+            } */
         }
     }
 });
