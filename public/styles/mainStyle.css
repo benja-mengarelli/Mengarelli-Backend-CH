@@ -35,7 +35,7 @@ main {
     /* Altura total menos header y footer */
 }
 
-h2 {
+h1, h2 {
     text-align: center;
     margin: 10px 0;
 }
@@ -154,7 +154,65 @@ button {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+}
 
+.contenedorForm form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.contenedorForm input {
+    padding: 5px;
+    border: 1px solid var(--color-secundario);
+    border-radius: 3px;
+    width: 80%;
+}
+.contenedorForm button {
+    width: 50%;
+}
+
+/* ESTILOS /PRODUCTOS */
+.formVisualizadorProductos {
+    background-color: var(--color-terciario);
+    color: var(--color-principal);
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 15px;
+    padding: 15px;
+}
+.formVisualizadorProductos input {
+    padding: 5px;
+    border: 1px solid var(--color-secundario);
+    border-radius: 3px;
+    width: 150px;
+}
+.formVisualizadorProductos button {
+    padding: 5px 10px;
+}
+.formVisualizadorProductos select {
+    padding: 5px;
+    border: 1px solid var(--color-secundario);
+    border-radius: 5px;
+}
+.visualizadorProductos{
+    border: 1px solid var(--color-secundario);
+    width: 100%;
+    height: calc(100vh - 200px);
+    overflow-y: auto;
+    padding: 10px;
+    gap: 10px;
+}
+.visualizadorProductos ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-start;
 }
 
 footer {

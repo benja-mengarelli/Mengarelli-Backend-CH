@@ -7,7 +7,12 @@
 <ul>
 {{#each productos}}
     <li>
-        <img src="{{this.imgURL}}" alt="{{this.nombre}}"><strong>{{this.nombre}}</strong> - ${{this.precio}}<br>
+        <img src="{{this.imagenUrl}}" alt="{{this.nombre}}">
+        <strong>{{this.nombre}}</strong>
+        <div class="comprarProducto">
+            ${{this.precio}}
+            <button>Comprar</button>
+        </div>
     </li>
 {{/each}}
 </ul>

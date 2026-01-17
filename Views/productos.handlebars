@@ -1,9 +1,59 @@
+<form method="GET" action="/productos" class="formVisualizadorProductos" id="formVisualizadorProductos">
+    <div>
+        <label for="categoriaFiltro">Categoría:</label>
+        <select id="categoriaFiltro">
+            <option value="Todas">Todas</option>
+            <option value="Electrónica">Electrónica</option>
+            <option value="Ropa">Ropa</option>
+            <option value="Hogar">Hogar</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="subcategoriaFiltro">Subcategoría:</label>
+        <select id="subcategoriaFiltro">
+            <option value="Todas">Todas</option>
+            <option value="Celulares">Celulares</option>
+            <option value="Computación">Computación</option>
+            <option value="Indumentaria">Indumentaria</option>
+            <option value="Calzado">Calzado</option>
+        </select>       
+    </div>
+
+    <div>
+        <label for="ordenamientoFiltro">Ordenar Por:</label>
+        <select id="ordenamientoFiltro">
+            <option value="none">Ninguno</option>
+            <option value="precioAsc">Precio: Bajo a Alto</option>
+            <option value="precioDesc">Precio: Alto a Bajo</option>
+            <option value="nombreAsc">Nombre: A - Z</option>
+            <option value="nombreDesc">Nombre: Z - A</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="searchFlitro">Buscar:</label>
+        <input type="text" id="searchFiltro" placeholder="Buscar producto...">
+    </div>
+
+    <button id="aplicarFiltros">Aplicar filtros</button>
+
+</form>
 <h1>Productos</h1>
 
-<ul>
-{{#each productos}}
-    <li>
-        <img src="{{this.imgURL}}" alt="{{this.nombre}}"><strong>{{this.nombre}}</strong> - ${{this.precio}}<br>
-    </li>
-{{/each}}
-</ul>
+<div id="visualizadorProductos" class="visualizadorProductos">
+    <ul>
+        {{#each productos}}
+        <li>
+            <img src="{{this.imagenUrl}}" alt="{{this.nombre}}">
+            <strong>{{this.nombre}}</strong>
+            <div class="comprarProducto">
+                ${{this.precio}}
+                <button>Comprar</button>
+            </div>
+        </li>
+        {{/each}}
+    </ul>
+</div>
+
+<script src="/js/filtrosProductos.js"></script>
