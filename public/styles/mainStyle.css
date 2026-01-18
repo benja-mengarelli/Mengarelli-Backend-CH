@@ -193,7 +193,7 @@ button {
     width: 150px;
 }
 .formVisualizadorProductos button {
-    padding: 5px 10px;
+    display: none;
 }
 .formVisualizadorProductos select {
     padding: 5px;
@@ -214,6 +214,16 @@ button {
     gap: 10px;
     justify-content: flex-start;
 }
+#pagination{
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    background-color: var(--color-terciario);
+    color: var(--color-principal);
+}
+
+
 
 footer {
     display: flex;

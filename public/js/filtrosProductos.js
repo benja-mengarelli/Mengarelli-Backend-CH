@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const aplicarFiltros = document.getElementById("aplicarFiltros");
     const visualizadorProductos = document.getElementById("visualizadorProductos");
     const productList = visualizadorProductos.querySelector("ul");
+    const paginationNav = document.getElementById("pagination");
 
     // Pagination state
     let currentPage = 1;
@@ -49,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             console.log("📦 Productos recibidos:", data.products.length, "de", data.totalProducts);
             renderProducts(data.products);
-            updatePaginationInfo(data);
+            renderPagination(data);
 
         } catch (error) {
             console.error("❌ Error al obtener productos:", error);
@@ -83,11 +84,66 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("✅ Mostrando", products.length, "productos");
     }
 
-    // Update pagination info
-    function updatePaginationInfo(data) {
-        console.log(`📄 Página ${data.pageNum} de ${data.totalPages} (${data.totalProducts} productos totales)`);
-        // You can add pagination buttons here if needed
-        currentPage = data.pageNum;
+    // Render pagination
+    function renderPagination(data) {
+        const { pageNum, totalPages, hasNextPage, hasPrevPage, totalProducts } = data;
+        
+        paginationNav.innerHTML = "";
+        
+        // Page info
+        const pageInfo = document.createElement("span");
+        pageInfo.textContent = `Página ${pageNum} de ${totalPages} (${totalProducts} productos)`;
+        paginationNav.appendChild(pageInfo);
+
+        // Previous button
+        if (hasPrevPage) {
+            const prevBtn = document.createElement("a");
+            prevBtn.href = "#";
+            prevBtn.textContent = "← Anterior";
+            prevBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                currentPage = pageNum - 1;
+                fetchFilteredProducts(currentPage);
+                window.scrollTo(0, 0);
+            });
+            paginationNav.appendChild(prevBtn);
+        }
+
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === pageNum) {
+                const strongPage = document.createElement("strong");
+                strongPage.textContent = i;
+                paginationNav.appendChild(strongPage);
+            } else {
+                const pageBtn = document.createElement("a");
+                pageBtn.href = "#";
+                pageBtn.textContent = i;
+                pageBtn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    currentPage = i;
+                    fetchFilteredProducts(currentPage);
+                    window.scrollTo(0, 0);
+                });
+                paginationNav.appendChild(pageBtn);
+            }
+        }
+
+        // Next button
+        if (hasNextPage) {
+            const nextBtn = document.createElement("a");
+            nextBtn.href = "#";
+            nextBtn.textContent = "Siguiente →";
+            nextBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                currentPage = pageNum + 1;
+                fetchFilteredProducts(currentPage);
+                window.scrollTo(0, 0);
+            });
+            paginationNav.appendChild(nextBtn);
+        }
+
+        console.log(`📄 Página ${pageNum} de ${totalPages}`);
     }
 
     // Live search - filter as you type with debounce
@@ -130,5 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
         fetchFilteredProducts(1);
     });
 
+    // Initialize - fetch first page on page load
     console.log("✅ Sistema de filtros inicializado");
+    fetchFilteredProducts(1);
 });
